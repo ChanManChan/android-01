@@ -8,6 +8,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.foody.data.DataStoreRepository
 import com.example.foody.data.MealAndDietType
 import com.example.foody.util.Constants.Companion.API_KEY
+import com.example.foody.util.Constants.Companion.DEFAULT_DIET_TYPE
+import com.example.foody.util.Constants.Companion.DEFAULT_MEAL_TYPE
 import com.example.foody.util.Constants.Companion.DEFAULT_RECIPES_NUMBER
 import com.example.foody.util.Constants.Companion.QUERY_API_KEY
 import com.example.foody.util.Constants.Companion.QUERY_DIET
@@ -27,9 +29,9 @@ class RecipesViewModel @Inject constructor(
     private val dataStoreRepository: DataStoreRepository
 ) : AndroidViewModel(application) {
 
-//    private var mealType = DEFAULT_MEAL_TYPE
-//    private var dietType = DEFAULT_DIET_TYPE
-    private lateinit var mealAndDiet: MealAndDietType
+    //    private var mealType = DEFAULT_MEAL_TYPE
+    //    private var dietType = DEFAULT_DIET_TYPE
+    private var mealAndDiet = MealAndDietType(DEFAULT_MEAL_TYPE, 0, DEFAULT_DIET_TYPE, 0)
     var networkStatus = false
     var backOnline = false
 
@@ -55,7 +57,7 @@ class RecipesViewModel @Inject constructor(
         mealAndDiet = MealAndDietType(mealType, mealTypeId, dietType, dietTypeId)
     }
 
-    fun saveBackOnline(backOnline: Boolean) = viewModelScope.launch(Dispatchers.IO) {
+    private fun saveBackOnline(backOnline: Boolean) = viewModelScope.launch(Dispatchers.IO) {
         dataStoreRepository.saveBackOnline(backOnline)
     }
 
