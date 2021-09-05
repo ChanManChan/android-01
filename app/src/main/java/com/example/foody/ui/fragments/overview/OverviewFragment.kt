@@ -5,67 +5,61 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.TextView
 import androidx.core.content.ContextCompat
 import coil.load
 import com.example.foody.R
+import com.example.foody.bindingadapters.RecipesRowBinding
+import com.example.foody.databinding.FragmentOverviewBinding
 import com.example.foody.models.Result
 import com.example.foody.util.Constants.Companion.RECIPE_RESULT_KEY
-import kotlinx.android.synthetic.main.fragment_overview.view.*
-import org.jsoup.Jsoup
 
 class OverviewFragment : Fragment() {
+
+    private var _binding: FragmentOverviewBinding? = null
+    private val binding get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         // Inflate the layout for this fragment
-        val view = inflater.inflate(R.layout.fragment_overview, container, false)
+        _binding = FragmentOverviewBinding.inflate(inflater, container, false)
 
         val args = arguments
-        val myBundle: Result? = args?.getParcelable(RECIPE_RESULT_KEY)
+        val myBundle: Result = args!!.getParcelable<Result>(RECIPE_RESULT_KEY) as Result
 
-        view.main_imageView.load(myBundle?.image)
-        view.title_textView.text = myBundle?.title
-        view.likes_textView.text = myBundle?.aggregateLikes.toString()
-        view.time_textView.text = myBundle?.readyInMinutes.toString()
-        myBundle?.summary.let {
-            val summary = Jsoup.parse(it).text()
-            view.summary_textView.text = summary
+        binding.mainImageView.load(myBundle.image)
+        binding.titleTextView.text = myBundle.title
+        binding.likesTextView.text = myBundle.aggregateLikes.toString()
+        binding.timeTextView.text = myBundle.readyInMinutes.toString()
+//        myBundle.summary.let {
+//            val summary = Jsoup.parse(it).text()
+//            binding.summaryTextView.text = summary
+//        }
+        RecipesRowBinding.parseHtml(binding.summaryTextView, myBundle.summary)
+
+        updateColors(myBundle.vegetarian, binding.vegetarianTextView, binding.vegetarianImageView)
+        updateColors(myBundle.vegan, binding.veganTextView, binding.veganImageView)
+        updateColors(myBundle.cheap, binding.cheapTextView, binding.cheapImageView)
+        updateColors(myBundle.dairyFree, binding.dairyFreeTextView, binding.dairyFreeImageView)
+        updateColors(myBundle.glutenFree, binding.glutenFreeTextView, binding.glutenFreeImageView)
+        updateColors(myBundle.veryHealthy, binding.healthyTextView, binding.healthyImageView)
+
+        return binding.root
+    }
+
+    private fun updateColors(stateIsOn: Boolean, textView: TextView, imageView: ImageView) {
+        if (stateIsOn) {
+            val greenColor = ContextCompat.getColor(requireContext(), R.color.green)
+            imageView.setColorFilter(greenColor)
+            textView.setTextColor(greenColor)
         }
+    }
 
-        val greenColor = ContextCompat.getColor(requireContext(), R.color.green)
-
-        if (myBundle?.vegetarian == true) {
-            view.vegetarian_imageView.setColorFilter(greenColor)
-            view.vegetarian_textView.setTextColor(greenColor)
-        }
-
-        if (myBundle?.vegan == true) {
-            view.vegan_imageView.setColorFilter(greenColor)
-            view.vegan_textView.setTextColor(greenColor)
-        }
-
-        if (myBundle?.glutenFree == true) {
-            view.gluten_free_imageView.setColorFilter(greenColor)
-            view.gluten_free_textView.setTextColor(greenColor)
-        }
-
-        if (myBundle?.dairyFree == true) {
-            view.dairy_free_imageView.setColorFilter(greenColor)
-            view.dairy_free_textView.setTextColor(greenColor)
-        }
-
-        if (myBundle?.veryHealthy == true) {
-            view.healthy_imageView.setColorFilter(greenColor)
-            view.healthy_textView.setTextColor(greenColor)
-        }
-
-        if (myBundle?.cheap == true) {
-            view.cheap_imageView.setColorFilter(greenColor)
-            view.cheap_textView.setTextColor(greenColor)
-        }
-
-        return view
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }
